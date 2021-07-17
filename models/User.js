@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import CustomError from "../helpers/error/CustomError.js";
 import jwt from "jsonwebtoken";
 
@@ -51,6 +52,12 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  resetPasswordToken: {
+    type: String,
+  },
+  resetPasswordTokenExpire: {
+    type: Date,
+  },
 });
 
 //User methods
@@ -68,6 +75,21 @@ UserSchema.methods.generateJwtFromUser = function () {
   });
 
   return token;
+};
+
+UserSchema.methods.getResetPasswordTokenFromUser = function () {
+  const randomHex = crypto.randomBytes(15).toString("hex");
+
+  const resetPasswordToken = crypto
+    .createHash("SHA256")
+    .update(randomHex)
+    .digest("hex");
+
+  this.resetPasswordToken = resetPasswordToken;
+  this.resetPasswordTokenExpire =
+    Date.now() + parseInt(process.env.RESET_PASSWORD_TOKEN_EXPIRE);
+
+  return resetPasswordToken;
 };
 
 UserSchema.pre("save", function (next) {

@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import routers from "./routers/index.js";
 import mongoose from "mongoose";
 import { customErrorHandler } from "./middlewares/errors/customErrorHandler.js";
+import { fileURLToPath } from "url";
+import path from "path";
 
 //ENVIRONMENT
 dotenv.config({
@@ -14,13 +16,18 @@ const app = express();
 // EXPRESS - BODY MIDDLEWARE
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 //ROUTER MIDDLEWARE
 app.use("/api", routers);
 
 //ERROR MIDDLEWARE
 app.use(customErrorHandler);
+
+//Express Static files
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, "public")));
 
 mongoose
   .connect(process.env.MONGO_URI, {
