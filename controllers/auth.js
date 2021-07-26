@@ -6,6 +6,7 @@ import {
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import { sendMail } from "../helpers/libraries/sendEmail.js";
+import { emailTemplate } from "../helpers/authorization/emailTemplate.js";
 
 export const register = async (req, res, next) => {
   try {
@@ -45,7 +46,7 @@ export const login = async (req, res, next) => {
     const user = await User.findOne({ email }).select("+password");
 
     if (!comparePasswords(password, user.password)) {
-      return next(new CustomError("Please check your credantials!", 400));
+      return next(new CustomError("Wrong password!", 400));
     }
 
     const token = user.generateJwtFromUser();
@@ -62,13 +63,13 @@ export const login = async (req, res, next) => {
       .json({
         success: true,
         access_token: token,
-        date: {
+        data: {
           name: user.name,
           email: user.email,
         },
       });
   } catch (error) {
-    return next(new CustomError(error.message, 401));
+    return next(new CustomError("Login Unsuccessfull", 401));
   }
 };
 
@@ -114,17 +115,19 @@ export const forgotPassword = async (req, res, next) => {
 
     const resetPasswordUrl = `${process.env.ENDPOINT_URL}/api/auth/resetpassword?resetPasswordToken=${resetPasswordToken}`;
 
-    const emailTemplate = `
-      <h3>Reset your password</h3>
-      <p><a href="${resetPasswordUrl}">Please click this link for reset your password</a> Link will expire in 1 hour</p>
-    `;
+    const emailTemplateForMail = emailTemplate(resetPasswordUrl);
+
+    // `
+    //   <h3>Reset your password</h3>
+    //   <p><a href="${resetPasswordUrl}">Please click this link for reset your password</a> Link will expire in 1 hour</p>
+    // `
 
     try {
       await sendMail({
         from: process.env.SMTP_USER,
         to: resetEmail,
         subject: "Reset your password",
-        html: emailTemplate,
+        html: emailTemplateForMail,
       });
       return res.status(200).json({
         success: true,
@@ -161,6 +164,7 @@ export const resetPassword = async (req, res, next) => {
       return next(new CustomError(err.message, 404));
     }
 
+    // TODO: row 168 and 169 not working
     user.resetPasswordToken = null;
     user.resetPasswordTokenExpire = null;
     user.password = password;
@@ -172,5 +176,23 @@ export const resetPassword = async (req, res, next) => {
     });
   } catch (error) {
     return next(new CustomError(error.message, 500));
+  }
+};
+
+export const editDetails = async (req, res, next) => {
+  try {
+    const editInformations = req.body;
+
+    const user = await User.findByIdAndUpdate(req.user.id, editInformations, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    return next(new CustomError("Editing failed", 500));
   }
 };

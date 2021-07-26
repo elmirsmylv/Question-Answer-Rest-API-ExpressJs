@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import CustomError from "../helpers/error/CustomError.js";
 import jwt from "jsonwebtoken";
+import Question from "./Question.js";
 
 const Schema = mongoose.Schema;
 
@@ -107,6 +108,12 @@ UserSchema.pre("save", function (next) {
       this.password = hash;
       next();
     });
+  });
+});
+
+UserSchema.post("remove", async function () {
+  await Question.deleteMany({
+    user: this._id,
   });
 });
 

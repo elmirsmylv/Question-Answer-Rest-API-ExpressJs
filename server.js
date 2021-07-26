@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 import { customErrorHandler } from "./middlewares/errors/customErrorHandler.js";
 import { fileURLToPath } from "url";
 import path from "path";
+import cors from "cors";
+import bodyParser from "body-parser";
 
 //ENVIRONMENT
 dotenv.config({
@@ -12,6 +14,11 @@ dotenv.config({
 });
 
 const app = express();
+
+//CORS
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+app.use(cors());
 
 // EXPRESS - BODY MIDDLEWARE
 app.use(express.json());

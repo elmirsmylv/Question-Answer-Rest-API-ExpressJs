@@ -6,6 +6,7 @@ import {
   logout,
   forgotPassword,
   resetPassword,
+  editDetails,
 } from "../controllers/auth.js";
 import { getAccessToRoute } from "../middlewares/Authorization/auth.js";
 
@@ -17,5 +18,6 @@ router.get("/getUser", getAccessToRoute, getUser);
 router.get("/logout", getAccessToRoute, logout);
 router.post("/forgotpassword", forgotPassword);
 router.put("/resetpassword", resetPassword);
+router.put("/edit", getAccessToRoute, editDetails);
 
 export default router;

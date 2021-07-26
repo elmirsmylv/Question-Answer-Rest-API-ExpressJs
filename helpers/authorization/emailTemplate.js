@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+import { urlencoded } from "express";
+
+export const emailTemplate = (url) => {
+  return `
+  <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -142,7 +146,8 @@
             style="max-width: 600px"
           >
             <tr>
-              <td align="center" valign="top" style="padding: 36px 24px"></td>
+              <td align="center" valign="top" style="padding: 36px 24px">
+              </td>
             </tr>
           </table>
           <!--[if (gte mso 9)|(IE)]>
@@ -252,7 +257,7 @@
                             style="border-radius: 6px"
                           >
                             <a
-                              href="https://sendgrid.com"
+                              href="${url}"
                               target="_blank"
                               style="
                                 display: inline-block;
@@ -358,7 +363,7 @@
               >
                 <p style="margin: 0">
                   To stop receiving these emails, you can
-                  <a href="https://sendgrid.com" target="_blank">unsubscribe</a>
+                  <a href="#" target="_blank">unsubscribe</a>
                   at any time.
                 </p>
                 <p style="margin: 0">
@@ -380,3 +385,6 @@
     <!-- end body -->
   </body>
 </html>
+
+  `;
+};
